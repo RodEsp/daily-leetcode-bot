@@ -7,7 +7,12 @@ import { dailyCodingQuestions, problemListByCategory, questionOfTheDay } from '.
 
 const baseUrl = 'https://leetcode.com';
 
-const zulipClient = await zulipInit({ zuliprc: 'zuliprc' });
+// Use { zuliprc: 'zuliprc' } as a config object to use the zuliprc file instead of environment variables
+const zulipClient = await zulipInit({
+	username: process.env.ZULIP_USERNAME,
+	apiKey: process.env.ZULIP_API_KEY,
+	realm: process.env.ZULIP_REALM,
+});
 
 class LeetCodeBot {
 	static async run () {
