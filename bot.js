@@ -23,6 +23,7 @@ const cronSchedule = process.env.DLB_CRON_SCHEDULE || '0 10 * * *'; // See https
 const messageReceiver = process.env.DLB_USER_ID ? [parseInt(process.env.DLB_USER_ID, 10)] : 'Daily LeetCode'; // Must be a Zulip user ID or a stream name
 const messageType = process.env.DLB_USER_ID ? 'direct' : 'stream';
 const messageTopic = process.env.DLB_TOPIC || 'Daily Leetcode Problem';
+const slackWebhookURL = process.env.DLB_SLACK_WEBHOOK;
 
 class LeetCodeBot {
 	static async run () {
@@ -33,16 +34,13 @@ class LeetCodeBot {
 
 			try {
 				const data = (await request(`${baseLeetcodeURL}/graphql`, questionOfTheDay)).activeDailyCodingChallengeQuestion;
+				const messageDate = { date, question: { ...data.question, link: data.link } };
 
-				const message = `${date}
-#### [${data.question.title}](${baseLeetcodeURL}${data.link}) - ${data.question.difficulty}
-\`\`\`spoiler Tags
-${data.question.topicTags.map((tag) => tag.name).join(', ')}
-\`\`\``;
+				await this.postMessageToZulip(messageDate);
 
-				console.log('  Posting message to Zulip:', `\n    ${message.replaceAll('\n', '\n    ')}`);
-				let response = await this.postMessageToZulip(message);
-				console.log(`  Response: ${JSON.stringify(response, null, 4)}`);
+				if (slackWebhookURL) {
+					await this.postMessageToSlack(messageDate);
+				}
 			} catch (error) {
 				console.log('Error fetching the problem of the day:', error);
 			}
@@ -58,7 +56,15 @@ ${data.question.topicTags.map((tag) => tag.name).join(', ')}
 		Timezone: ${timezone}`);
 	}
 
-	static async postMessageToZulip (message) {
+	static async postMessageToZulip ({ date, question }) {
+		const message = `${date}
+#### [${question.title}](${baseLeetcodeURL}${question.link}) - ${question.difficulty}
+\`\`\`spoiler Tags
+${question.topicTags.map((tag) => tag.name).join(', ')}
+\`\`\``;
+
+		console.log('  Posting message to Zulip:', `\n    ${message.replaceAll('\n', '\n    ')}`);
+
 		let params = {
 			to: messageReceiver,
 			type: messageType,
@@ -67,9 +73,71 @@ ${data.question.topicTags.map((tag) => tag.name).join(', ')}
 		};
 
 		try {
-			return await zulipClient.messages.send(params);
+			const response = await zulipClient.messages.send(params);
+			console.log(`  Response: ${JSON.stringify(response, null, 4)}`);
 		} catch (error) {
 			console.error('Error posting message to Zulip:', error);
+		}
+	}
+
+	static async postMessageToSlack ({ date, question }) {
+		const payload = {
+			text: `${date} - ${question.title}: ${baseLeetcodeURL}${question.link}`,
+			blocks: [
+				{
+					type: "header",
+					text: {
+						type: "plain_text",
+						text: date
+					}
+				},
+				{
+					type: "section",
+					text: {
+						type: "mrkdwn",
+						text: `<${baseLeetcodeURL}${question.link}|${question.title}> - ${question.difficulty}`
+					}
+				},
+				{
+					type: "divider"
+				},
+				{
+					type: "section",
+					text: {
+						type: "plain_text",
+						text: "Tags"
+					},
+					accessory: {
+						type: "overflow",
+						options: question.topicTags.map((tag) => ({
+							text: {
+								type: "plain_text",
+								text: tag.name,
+								emoji: true
+							},
+							value: tag.name
+						})),
+						action_id: "overflow-action"
+					}
+				}
+			]
+		};
+
+		console.log('  Posting message to Slack:', `\n    ${JSON.stringify(payload)}`);
+
+		try {
+			const response = await fetch(slackWebhookURL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(payload),
+			});
+
+			const result = await response.text();
+			console.log('  Response:', result);
+		} catch (error) {
+			console.error('Error posting message to Slack:', error);
 		}
 	}
 }
