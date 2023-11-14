@@ -1,9 +1,11 @@
 # Daily Leetcode Bot
 > If you're a recurser, ping me on Zulip for any questions.
+>
+> If you're a vertical flat plate, ping me on Slack for any questions.
 
-The Daily Leetcode Bot posts questions from [leetcode.com](https://leetcode.com) to Zulip every day.
+The Daily Leetcode Bot can post questions from [leetcode.com](https://leetcode.com) to Zulip or Slack every day.
 
-It is primarily intended to be used for the [Recurse Center](https://recurse.com/) but it can be easily configured to post with any frequency to any Zulip instance.
+It is primarily intended to be used for the [Recurse Center](https://recurse.com/) but it can be easily configured to post with any frequency to any Zulip realm or Slack workspace.
 
 ## Getting Started
 > To run this bot you must have [Node.js](https://nodejs.org/) installed.
@@ -17,6 +19,9 @@ The bot can be configured by using the following environment variables:
 	* `ZULIP_REALM` - your [Zulip Realm](https://zulip.readthedocs.io/en/latest/subsystems/realms.html) or the https address of your Zulip instance
 		* e.g. https://myorg.zulipchat.com
 	> You can also place a [zuliprc](https://zulip.com/api/running-bots#running-a-bot) at the root of this repo.
+
+* Slack
+	* `DLB_SLACK_WEBHOOK` - the webhook URL for an [incoming webhook](https://api.slack.com/messaging/webhooks)
 
 * Bot
 	* `DLB_TIMEZONE` - A timezone identifier as defined by [IANA](https://www.iana.org/) (list [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
