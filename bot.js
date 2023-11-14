@@ -17,7 +17,7 @@ if (process.env.ZULIP_USERNAME && process.env.ZULIP_API_KEY && process.env.ZULIP
 	zulipClient = await zulipInit({ zuliprc: 'zuliprc' });
 }
 
-const baseUrl = 'https://leetcode.com';
+const baseLeetcodeURL = 'https://leetcode.com';
 const timezone = process.env.DLB_TIMEZONE || 'America/New_York';
 const cronSchedule = process.env.DLB_CRON_SCHEDULE || '0 10 * * *'; // See https://www.npmjs.com/package/node-cron#cron-syntax for more info
 const messageReceiver = process.env.DLB_USER_ID ? [parseInt(process.env.DLB_USER_ID, 10)] : 'Daily LeetCode'; // Must be a Zulip user ID or a stream name
@@ -32,10 +32,10 @@ class LeetCodeBot {
 			console.log(`Getting leetcode question for ${date}`);
 
 			try {
-				const data = (await request(`${baseUrl}/graphql`, questionOfTheDay)).activeDailyCodingChallengeQuestion;
+				const data = (await request(`${baseLeetcodeURL}/graphql`, questionOfTheDay)).activeDailyCodingChallengeQuestion;
 
 				const message = `${date}
-#### [${data.question.title}](${baseUrl}${data.link}) - ${data.question.difficulty}
+#### [${data.question.title}](${baseLeetcodeURL}${data.link}) - ${data.question.difficulty}
 \`\`\`spoiler Tags
 ${data.question.topicTags.map((tag) => tag.name).join(', ')}
 \`\`\``;
@@ -75,4 +75,4 @@ ${data.question.topicTags.map((tag) => tag.name).join(', ')}
 }
 
 
-export default LeetCodeBot;;;;;;
+export default LeetCodeBot;
