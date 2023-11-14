@@ -48,7 +48,7 @@ This contains GraphQL queries that can be used with the Leetcode API. Unfortunat
 > Please read our [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ### [Pull Requests](https://github.com/RodEsp/daily-leetcode-bot/pulls)
-Pease create an [issue](https://github.com/RodEsp/daily-leetcode-bot/issues) if you want to submit a PR and link it to your PR with one of these [keywords](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/using-keywords-in-issues-and-pull-requests#linking-a-pull-request-to-an-issue).
+Please create an [issue](https://github.com/RodEsp/daily-leetcode-bot/issues) if you want to submit a PR and link it to your PR with one of these [keywords](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/using-keywords-in-issues-and-pull-requests#linking-a-pull-request-to-an-issue).
 
 ### [Issues](https://github.com/RodEsp/daily-leetcode-bot/issues)
 Feel free to create issues for any bugs or feature requests. If submitting a bug, please include as many details as possible. Including, but not limited to, reproduction steps, logs, and screenshots that show the problem.
