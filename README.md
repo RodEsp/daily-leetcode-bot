@@ -40,13 +40,17 @@ The bot can be configured by using the following environment variables:
 
 This repository is composed of three main files.
 #### [server.js](./server.js)
-This houses an express server that isn't really used right now but could be expanded to house an API. It's also the entry point for our bot.
+An express server that isn't really used right now but could be expanded to house an API. It's also the entry point for our bot.
 
 #### [bot.js](./bot.js)
-This is the business logic for the bot and where all the configuration gets applied.
+The business logic for the bot and where all the configuration gets applied.
 
 #### [queries.js](./queries.js)
-This contains GraphQL queries that can be used with the Leetcode API. Unfortunately the Leetcode API is not documented but useful information about it can be found [here](https://github.com/aylei/leetcode-rust/issues/12), [here](https://leetcode.com/discuss/general-discussion/1297705/is-there-public-api-endpoints-available-for-leetcode), and by searching the intertubez.
+GraphQL queries that can be used with the Leetcode API. <br/>
+Unfortunately the Leetcode API is not documented but useful information about it can be found [here](https://github.com/aylei/leetcode-rust/issues/12), [here](https://leetcode.com/discuss/general-discussion/1297705/is-there-public-api-endpoints-available-for-leetcode), and by searching the intertubez.
+
+#### [Grind75.json](./Grind75.json)
+A JSON dataset containing the problems found [here](https://www.techinterviewhandbook.org/grind75?mode=all&grouping=topics) which were compiled by the talented [@yangshun](https://github.com/yangshun/tech-interview-handbook).
 
 ## Contributing
 
