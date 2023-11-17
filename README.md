@@ -1,4 +1,8 @@
-# Daily Leetcode Bot
+<p align="center">
+	<img width="200px" height="200px" src="https://github.com/RodEsp/daily-leetcode-bot/assets/1084688/30e9f79f-0b6a-4691-8537-77f892c635bf">
+</p>
+
+# Daily Leetcode Bot 
 > If you're a recurser, ping me on Zulip for any questions.
 >
 > If you're a vertical flat plate, ping me on Slack for any questions.
