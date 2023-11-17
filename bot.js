@@ -79,7 +79,7 @@ class LeetCodeBot {
 
 \`Grind75\` at [techinterviewhandbook.org](https://www.techinterviewhandbook.org/grind75?mode=all&grouping=topics)
 Topic is: ${problems.grind75.topic.replaceAll('_', ' ')}
-${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) => `${acc}1. (${difficulty}) [${problem.title}](${problem.link}})\n`, '')}
+${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) => `${acc}1. (${difficulty}) [${problem.title}](${problem.link})\n`, '')}
 `;
 
 		console.log('  Posting message to Zulip:', `\n    ${message.replaceAll('\n', '\n    ')}`);
