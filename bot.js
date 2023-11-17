@@ -4,6 +4,7 @@ import { request } from 'graphql-request';
 import cron from 'node-cron';
 
 import { dailyCodingQuestions, problemListByCategory, questionOfTheDay } from './queries.js';
+import grind75_problems from './Grind75.json' assert { type: 'json' };
 
 let zulipClient;
 if (process.env.ZULIP_USERNAME && process.env.ZULIP_API_KEY && process.env.ZULIP_REALM) {
@@ -30,19 +31,34 @@ class LeetCodeBot {
 		// Schedule the task to run every day at 10:00 AM
 		cron.schedule(cronSchedule, async () => {
 			const date = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', timeZone: timezone });
-			console.log(`Getting leetcode question for ${date}`);
+			console.log(`Getting leetcode problem for ${date}`);
 
 			try {
-				const data = (await request(`${baseLeetcodeURL}/graphql`, questionOfTheDay)).activeDailyCodingChallengeQuestion;
-				const messageDate = { date, question: { ...data.question, link: data.link } };
+				const leetcode_data = (await request(`${baseLeetcodeURL}/graphql`, questionOfTheDay)).activeDailyCodingChallengeQuestion;
 
-				await this.postMessageToZulip(messageDate);
+				// Choose problems from grind75 by selecting a random topic and then random questions for each difficulty from that topic
+				const topics = Object.keys(grind75_problems).filter((topic) => topic !== '//comment' && topic !== 'premium');
+				const topic = topics[Math.floor(Math.random() * (topics.length - 1))];
+				const problems = Object.entries(grind75_problems[topic]).reduce((acc, [key, problems]) => {
+					acc[key] = problems[Math.floor(Math.random() * problems.length)];
+					return acc;
+				}, {});
+
+				const messageData = {
+					date,
+					problems: {
+						leetcode_daily: { ...leetcode_data.question, link: leetcode_data.link },
+						grind75: { topic, problems }
+					}
+				};
+
+				await this.postMessageToZulip(messageData);
 
 				if (slackWebhookURL) {
-					await this.postMessageToSlack(messageDate);
+					await this.postMessageToSlack(messageData);
 				}
 			} catch (error) {
-				console.log('Error fetching the problem of the day:', error);
+				console.log('Error getting problems:', error);
 			}
 		}, {
 			scheduled: true,
@@ -56,12 +72,15 @@ class LeetCodeBot {
 		Timezone: ${timezone}`);
 	}
 
-	static async postMessageToZulip ({ date, question }) {
+	static async postMessageToZulip ({ date, problems }) {
 		const message = `${date}
-#### [${question.title}](${baseLeetcodeURL}${question.link}) - ${question.difficulty}
-\`\`\`spoiler Tags
-${question.topicTags.map((tag) => tag.name).join(', ')}
-\`\`\``;
+\`Daily Question\` at [leetcode.com](https://leetcode.com/problemset/all/)
+1. (${problems.leetcode_daily.difficulty}) [${problems.leetcode_daily.title}](${baseLeetcodeURL}${problems.leetcode_daily.link})
+
+\`Grind75\` at [techinterviewhandbook.org](https://www.techinterviewhandbook.org/grind75?mode=all)
+Topic is: ${problems.grind75.topic.replaceAll('_', ' ')}
+${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) => `${acc}1. (${difficulty}) [${problem.title}](${problem.link}})\n`, '')}
+`;
 
 		console.log('  Posting message to Zulip:', `\n    ${message.replaceAll('\n', '\n    ')}`);
 
@@ -80,9 +99,9 @@ ${question.topicTags.map((tag) => tag.name).join(', ')}
 		}
 	}
 
-	static async postMessageToSlack ({ date, question }) {
+	static async postMessageToSlack ({ date, problems }) {
 		const payload = {
-			text: `${date} - ${question.title}: ${baseLeetcodeURL}${question.link}`,
+			text: `${date} - ${problems.leetcode_daily.title}: ${baseLeetcodeURL}${problems.leetcode_daily.link}`,
 			blocks: [
 				{
 					type: "header",
@@ -95,7 +114,7 @@ ${question.topicTags.map((tag) => tag.name).join(', ')}
 					type: "section",
 					text: {
 						type: "mrkdwn",
-						text: `<${baseLeetcodeURL}${question.link}|${question.title}> - ${question.difficulty}`
+						text: `<${baseLeetcodeURL}${problems.leetcode_daily.link}|${problems.leetcode_daily.title}> - ${problems.leetcode_daily.difficulty}`
 					}
 				},
 				{
@@ -109,7 +128,7 @@ ${question.topicTags.map((tag) => tag.name).join(', ')}
 					},
 					accessory: {
 						type: "overflow",
-						options: question.topicTags.map((tag) => ({
+						options: problems.leetcode_daily.topicTags.map((tag) => ({
 							text: {
 								type: "plain_text",
 								text: tag.name,
