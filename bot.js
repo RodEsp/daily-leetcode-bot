@@ -77,7 +77,7 @@ class LeetCodeBot {
 \`Daily Question\` at [leetcode.com](https://leetcode.com/problemset/all/)
 1. (${problems.leetcode_daily.difficulty}) [${problems.leetcode_daily.title}](${baseLeetcodeURL}${problems.leetcode_daily.link})
 
-\`Grind75\` at [techinterviewhandbook.org](https://www.techinterviewhandbook.org/grind75?mode=all)
+\`Grind75\` at [techinterviewhandbook.org](https://www.techinterviewhandbook.org/grind75?mode=all&grouping=topics)
 Topic is: ${problems.grind75.topic.replaceAll('_', ' ')}
 ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) => `${acc}1. (${difficulty}) [${problem.title}](${problem.link}})\n`, '')}
 `;
