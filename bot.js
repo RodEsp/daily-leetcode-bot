@@ -101,7 +101,6 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 
 	static async postMessageToSlack ({ date, problems }) {
 		const payload = {
-			// text: `${date} - ${problems.leetcode_daily.title}: ${baseLeetcodeURL}${problems.leetcode_daily.link}`,
 			blocks: [
 				{
 					type: "header",
@@ -201,4 +200,4 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 }
 
 
-export default LeetCodeBot;;
+export default LeetCodeBot;
