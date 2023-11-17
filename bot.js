@@ -91,17 +91,17 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 			content: message,
 		};
 
-		try {
-			const response = await zulipClient.messages.send(params);
-			console.log(`  Response: ${JSON.stringify(response, null, 4)}`);
-		} catch (error) {
-			console.error('Error posting message to Zulip:', error);
-		}
+		// try {
+		// 	const response = await zulipClient.messages.send(params);
+		// 	console.log(`  Response: ${JSON.stringify(response, null, 4)}`);
+		// } catch (error) {
+		// 	console.error('Error posting message to Zulip:', error);
+		// }
 	}
 
 	static async postMessageToSlack ({ date, problems }) {
 		const payload = {
-			text: `${date} - ${problems.leetcode_daily.title}: ${baseLeetcodeURL}${problems.leetcode_daily.link}`,
+			// text: `${date} - ${problems.leetcode_daily.title}: ${baseLeetcodeURL}${problems.leetcode_daily.link}`,
 			blocks: [
 				{
 					type: "header",
@@ -111,36 +111,75 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 					}
 				},
 				{
-					type: "section",
-					text: {
-						type: "mrkdwn",
-						text: `<${baseLeetcodeURL}${problems.leetcode_daily.link}|${problems.leetcode_daily.title}> - ${problems.leetcode_daily.difficulty}`
-					}
+					type: "context",
+					elements: [
+						{
+							type: "mrkdwn",
+							text: "`Daily Question` at <https://leetcode.com/problemset/all/|leetcode.com>"
+						}
+					]
 				},
 				{
-					type: "divider"
+					type: "rich_text",
+					elements: [
+						{
+							type: "rich_text_list",
+							style: "ordered",
+							elements: [
+								{
+									type: "rich_text_section",
+									elements: [
+										{
+											type: "text",
+											text: `(${problems.leetcode_daily.difficulty}) `
+										},
+										{
+											type: "link",
+											url: `${baseLeetcodeURL}${problems.leetcode_daily.link}`,
+											text: problems.leetcode_daily.title,
+										}
+									]
+								}
+							]
+						}
+					]
 				},
 				{
-					type: "section",
-					text: {
-						type: "plain_text",
-						text: "Tags"
-					},
-					accessory: {
-						type: "overflow",
-						options: problems.leetcode_daily.topicTags.map((tag) => ({
-							text: {
-								type: "plain_text",
-								text: tag.name,
-								emoji: true
-							},
-							value: tag.name
-						})),
-						action_id: "overflow-action"
-					}
+					type: "context",
+					elements: [
+						{
+							type: "mrkdwn",
+							text: `\`Grind75\` at <https://www.techinterviewhandbook.org/grind75?mode=all&grouping=topics|techinterviewhandbook.org>
+   Topic is: ${problems.grind75.topic.replaceAll('_', ' ')}`
+						}
+					]
+				},
+				{
+					type: "rich_text",
+					elements: [
+						{
+							type: "rich_text_list",
+							style: "ordered",
+							elements: []
+						}
+					]
 				}
 			]
 		};
+
+		Object.entries(problems.grind75.problems).forEach(([difficulty, problem]) => {
+			payload.blocks[4].elements[0].elements.push({
+				type: "rich_text_section",
+				elements: [{
+					"type": "text",
+					"text": `(${difficulty}) `
+				}, {
+					"type": "link",
+					"url": problem.link,
+					"text": problem.title,
+				}]
+			});
+		});
 
 		console.log('  Posting message to Slack:', `\n    ${JSON.stringify(payload)}`);
 
@@ -162,4 +201,4 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 }
 
 
-export default LeetCodeBot;
+export default LeetCodeBot;;
