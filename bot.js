@@ -91,12 +91,12 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 			content: message,
 		};
 
-		// try {
-		// 	const response = await zulipClient.messages.send(params);
-		// 	console.log(`  Response: ${JSON.stringify(response, null, 4)}`);
-		// } catch (error) {
-		// 	console.error('Error posting message to Zulip:', error);
-		// }
+		try {
+			const response = await zulipClient.messages.send(params);
+			console.log(`  Response: ${JSON.stringify(response, null, 4)}`);
+		} catch (error) {
+			console.error('Error posting message to Zulip:', error);
+		}
 	}
 
 	static async postMessageToSlack ({ date, problems }) {

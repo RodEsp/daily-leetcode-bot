@@ -3,8 +3,7 @@
 </p>
 
 # Daily Leetcode Bot 
-> If you're a recurser, ping me on Zulip for any questions.
->
+> If you're a recurser, ping me on Zulip for any questions. <br/>
 > If you're a vertical flat plate, ping me on Slack for any questions.
 
 The Daily Leetcode Bot can post questions from [leetcode.com](https://leetcode.com) to Zulip or Slack every day.
