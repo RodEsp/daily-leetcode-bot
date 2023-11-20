@@ -38,7 +38,7 @@ class LeetCodeBot {
 
 				// Choose problems from grind75 by selecting a random topic and then random questions for each difficulty from that topic
 				const topics = Object.keys(grind75_problems).filter((topic) => topic !== '//comment' && topic !== 'premium');
-				const topic = topics[Math.floor(Math.random() * (topics.length - 1))];
+				const topic = topics[Math.floor(Math.random() * topics.length)];
 				const problems = Object.entries(grind75_problems[topic]).reduce((acc, [key, problems]) => {
 					acc[key] = problems[Math.floor(Math.random() * problems.length)];
 					return acc;
@@ -198,6 +198,5 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 		}
 	}
 }
-
 
 export default LeetCodeBot;
