@@ -30,27 +30,39 @@ class LeetCodeBot {
 	static async run () {
 		// Schedule the task to run every day at 10:00 AM
 		cron.schedule(cronSchedule, async () => {
-			const date = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', timeZone: timezone });
-			console.log(`Getting leetcode problem for ${date}`);
+			const date = new Date();
+			const humanReadableDateString = date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', timeZone: timezone });
+			console.log(`Getting leetcode problem for ${humanReadableDateString}`);
 
 			try {
 				const leetcode_data = (await request(`${baseLeetcodeURL}/graphql`, questionOfTheDay)).activeDailyCodingChallengeQuestion;
 
 				// Choose problems from grind75 by selecting a random topic and then random questions for each difficulty from that topic
 				const topics = Object.keys(grind75_problems).filter((topic) => topic !== '//comment' && topic !== 'premium');
-				const topic = topics[Math.floor(Math.random() * topics.length)];
+				const topic = topics[random(topics.length - 1)];
 				const problems = Object.entries(grind75_problems[topic]).reduce((acc, [key, problems]) => {
-					acc[key] = problems[Math.floor(Math.random() * problems.length)];
+					acc[key] = problems[random(problems.length - 1)];
 					return acc;
 				}, {});
 
 				const messageData = {
-					date,
+					date: humanReadableDateString,
 					problems: {
 						leetcode_daily: { ...leetcode_data.question, link: leetcode_data.link },
 						grind75: { topic, problems }
 					}
 				};
+
+				// Get the problem of the day from Advent of Code if it's after Dec 1st
+				const currentYear = date.getFullYear();
+				const dec_1st = new Date(`${currentYear}-12-01T00:00:00.000-05:00`); // Get date for Dec 1st EST of the current year
+				if (date > dec_1st) {
+					const aoc_link = `https://adventofcode.com/${currentYear}/day/${date.getDate()}`;
+					const aoc_html = await (await fetch(aoc_link)).text();
+					const title = aoc_html.match(/<h2>(.*)<\/h2>/)[1].replace(/---/g, '').trim();
+
+					messageData.problems.advent_of_code = { title, year: currentYear, link: aoc_link };
+				}
 
 				await this.postMessageToZulip(messageData);
 
@@ -73,7 +85,7 @@ class LeetCodeBot {
 	}
 
 	static async postMessageToZulip ({ date, problems }) {
-		const message = `${date}
+		let message = `${date}
 \`Daily Question\` at [leetcode.com](https://leetcode.com/problemset/all/)
 1. (${problems.leetcode_daily.difficulty}) [${problems.leetcode_daily.title}](${baseLeetcodeURL}${problems.leetcode_daily.link})
 
@@ -81,6 +93,15 @@ class LeetCodeBot {
 Topic is: ${problems.grind75.topic.replaceAll('_', ' ')}
 ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) => `${acc}1. (${difficulty}) [${problem.title}](${problem.link})\n`, '')}
 `;
+
+		if (problems.advent_of_code) {
+			const emoji = ['snowflake', 'snowman', 'holiday_tree', 'santa', 'cabin-with-snow', 'gift'][random(5)];
+
+			message += `
+\`Advent of Code - ${problems.advent_of_code.year}\` at [adventofcode.com](https://adventofcode.com/)
+:${emoji}:. [${problems.advent_of_code.title}](${problems.advent_of_code.link})
+`;
+		}
 
 		console.log('  Posting message to Zulip:', `\n    ${message.replaceAll('\n', '\n    ')}`);
 
@@ -180,6 +201,10 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 			});
 		});
 
+		if (problems.advent_of_code) {
+			// TODO: Add blocks for Advent of Code message
+		}
+
 		console.log('  Posting message to Slack:', `\n    ${JSON.stringify(payload)}`);
 
 		try {
@@ -198,5 +223,11 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 		}
 	}
 }
+
+/**
+ * Returns a random number from 0 to max
+ * @type {(max: number) => number}
+ */
+const random = (max) => Math.floor(Math.random() * (max + 1));
 
 export default LeetCodeBot;
