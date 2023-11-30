@@ -30,7 +30,8 @@ class LeetCodeBot {
 	static async run () {
 		// Schedule the task to run every day at 10:00 AM
 		cron.schedule(cronSchedule, async () => {
-			const date = new Date();
+			const date = new Date(); // '2022-12-17T10:00:00.000-05:00' <- Use this date string for testing Advent of Code functionality
+
 			const humanReadableDateString = date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', timeZone: timezone });
 			console.log(`Getting leetcode problem for ${humanReadableDateString}`);
 
@@ -53,11 +54,12 @@ class LeetCodeBot {
 					}
 				};
 
-				// Get the problem of the day from Advent of Code if it's after Dec 1st
+				// Get the problem of the day from Advent of Code if the current date is between Dec 1st and Dec 25th
 				const currentYear = date.getFullYear();
-				const dec_1st = new Date(`${currentYear}-12-01T00:00:00.000-05:00`); // Get date for Dec 1st EST of the current year
-				if (date > dec_1st) {
-					const aoc_link = `https://adventofcode.com/${currentYear}/day/${date.getDate()}`;
+				const dec_1st = new Date(`${currentYear}-12-01T00:00:00.000-05:00`); // Get date for Dec 1st EST
+				const dec_26th = new Date(`${currentYear}-12-26T00:00:00.000-05:00`); // Get date for Dec 26th EST
+				if (date >= dec_1st && date < dec_26th) {
+					const aoc_link = `https://adventofcode.com/${currentYear}/day/${date.getDate()}`; // 
 					const aoc_html = await (await fetch(aoc_link)).text();
 					const title = aoc_html.match(/<h2>(.*)<\/h2>/)[1].replace(/---/g, '').trim();
 
@@ -98,7 +100,7 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 			const emoji = ['snowflake', 'snowman', 'holiday_tree', 'santa', 'cabin-with-snow', 'gift'][random(5)];
 
 			message += `
-\`Advent of Code - ${problems.advent_of_code.year}\` at [adventofcode.com](https://adventofcode.com/)
+\`Daily Puzzle\` at [adventofcode.com](https://adventofcode.com/)
 :${emoji}:. [${problems.advent_of_code.title}](${problems.advent_of_code.link})
 `;
 		}
@@ -202,7 +204,24 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 		});
 
 		if (problems.advent_of_code) {
-			// TODO: Add blocks for Advent of Code message
+			const emoji = ['snowflake', 'snowman', 'christmas_tree', 'santa', 'gift'][random(4)];
+
+			payload.blocks.push({
+				"type": "context",
+				"elements": [
+					{
+						"type": "mrkdwn",
+						"text": "`Daily Puzzle` at <https://adventofcode.com|adventofcode.com>"
+					}
+				]
+			});
+			payload.blocks.push({
+				"type": "section",
+				"text": {
+					"type": "mrkdwn",
+					"text": `:${emoji}:. <${problems.advent_of_code.link}|${problems.advent_of_code.title}>`
+				}
+			});
 		}
 
 		console.log('  Posting message to Slack:', `\n    ${JSON.stringify(payload)}`);
