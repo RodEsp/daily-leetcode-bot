@@ -19,8 +19,8 @@ if (process.env.ZULIP_USERNAME && process.env.ZULIP_API_KEY && process.env.ZULIP
 }
 
 const baseLeetcodeURL = 'https://leetcode.com';
-const timezone = process.env.DLB_TIMEZONE || 'America/New_York';
-const cronSchedule = process.env.DLB_CRON_SCHEDULE || '0 10 * * *'; // See https://www.npmjs.com/package/node-cron#cron-syntax for more info
+const timezone = process.env.DLB_TIMEZONE || 'Etc/UTC';
+const cronSchedule = process.env.DLB_CRON_SCHEDULE || '0 0 * * *'; // See https://www.npmjs.com/package/node-cron#cron-syntax for more info
 const messageReceiver = process.env.DLB_USER_ID ? [parseInt(process.env.DLB_USER_ID, 10)] : 'Daily LeetCode'; // Must be a Zulip user ID or a stream name
 const messageType = process.env.DLB_USER_ID ? 'direct' : 'stream';
 const messageTopic = process.env.DLB_TOPIC || 'Daily Leetcode Problem';
