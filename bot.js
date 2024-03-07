@@ -1,9 +1,9 @@
+import cron from 'node-cron';
+import fetchCookie from 'fetch-cookie'
 import zulipInit from 'zulip-js';
 
-import { request } from 'graphql-request';
-import cron from 'node-cron';
 
-import { dailyCodingQuestions, problemListByCategory, questionOfTheDay } from './queries.js';
+import { questionOfTheDay } from './queries.js';
 import grind75_problems from './Grind75.json' assert { type: 'json' };
 
 let zulipClient;
@@ -26,6 +26,9 @@ const messageType = process.env.DLB_USER_ID ? 'direct' : 'stream';
 const messageTopic = process.env.DLB_TOPIC || 'Daily Leetcode Problem';
 const slackWebhookURL = process.env.DLB_SLACK_WEBHOOK;
 
+// Fetch with a cookie jar scoped to the client object.
+const fetch_with_cookies = fetchCookie(fetch);
+
 class LeetCodeBot {
 	static async run () {
 		// Schedule the task to run every day at 10:00 AM
@@ -36,7 +39,22 @@ class LeetCodeBot {
 			console.log(`Getting leetcode problem for ${humanReadableDateString}`);
 
 			try {
-				const leetcode_data = (await request(`${baseLeetcodeURL}/graphql`, questionOfTheDay)).activeDailyCodingChallengeQuestion;
+				const response = await fetch_with_cookies('https://leetcode.com/graphql', {
+					method: 'POST',
+					headers: {
+						referer: 'no-referrer',
+						'Content-Type': 'application/json'
+					},
+					body: `{"query":"${questionOfTheDay}","operationName":"questionOfToday"}`
+				});
+
+				let leetcode_data;
+				if (response.ok) {
+					leetcode_data = (await response.json()).activeDailyCodingChallengeQuestion;
+				} else {
+					console.error('There was a problem fetching data from the Leetcode API.');
+					console.error(await response.text());
+				}
 
 				// Choose problems from grind75 by selecting a random topic and then random questions for each difficulty from that topic
 				const topics = Object.keys(grind75_problems).filter((topic) => topic !== '//comment' && topic !== 'premium');
@@ -49,10 +67,14 @@ class LeetCodeBot {
 				const messageData = {
 					date: humanReadableDateString,
 					problems: {
-						leetcode_daily: { ...leetcode_data.question, link: leetcode_data.link },
+						leetcode_daily: { ...leetcode_data?.question, link: leetcode_data?.link },
 						grind75: { topic, problems }
 					}
 				};
+
+				if (leetcode_data === undefined) {
+					messageData.problems.leetcode_daily = undefined;
+				}
 
 				// Get the problem of the day from Advent of Code if the current date is between Dec 1st and Dec 25th
 				const currentYear = date.getFullYear();
@@ -72,7 +94,16 @@ class LeetCodeBot {
 					await this.postMessageToSlack(messageData);
 				}
 			} catch (error) {
-				console.log('Error getting problems:', error);
+				console.group('Error getting problems:');
+				if (error.response?.headers) {
+					console.error(error.response.status);
+					// console.group('Response Headers');
+					// console.error(error.response.headers);
+					console.groupEnd();
+				} else {
+					console.error(error);
+				}
+				console.groupEnd();
 			}
 		}, {
 			scheduled: true,
@@ -87,9 +118,17 @@ class LeetCodeBot {
 	}
 
 	static async postMessageToZulip ({ date, problems }) {
+		let leetcode_message;
+		if (problems.leetcode_daily) {
+			leetcode_message = `1. (${problems.leetcode_daily.difficulty}) [${problems.leetcode_daily.title}](${baseLeetcodeURL}${problems.leetcode_daily.link})`
+		} else {
+			leetcode_message = `> There was a problem accessing the leetcode API.
+> Find the daily problem on the calenadar [here](https://leetcode.com/problemset/).`
+		}
+
 		let message = `${date}
 \`Daily Question\` at [leetcode.com](https://leetcode.com/problemset/all/)
-1. (${problems.leetcode_daily.difficulty}) [${problems.leetcode_daily.title}](${baseLeetcodeURL}${problems.leetcode_daily.link})
+${leetcode_message}
 
 \`Grind75\` at [techinterviewhandbook.org](https://www.techinterviewhandbook.org/grind75?mode=all&grouping=topics)
 Topic is: ${problems.grind75.topic.replaceAll('_', ' ')}
@@ -249,4 +288,4 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
  */
 const random = (max) => Math.floor(Math.random() * (max + 1));
 
-export default LeetCodeBot;
+LeetCodeBot.run();

@@ -1,33 +1,30 @@
-import { gql } from 'graphql-request';
-
-export const questionOfTheDay = gql`
-query questionOfToday {
+export const questionOfTheDay = `query questionOfToday {
 	activeDailyCodingChallengeQuestion {
-	  date
-	  userStatus
-	  link
-	  question {
-		acRate
-		difficulty
-		freqBar
-		frontendQuestionId: questionFrontendId
-		isFavor
-		paidOnly: isPaidOnly
-		status
-		title
-		titleSlug
-		hasVideoSolution
-		hasSolution
-		topicTags {
-		  name
-		  id
-		  slug
+		date
+		userStatus
+		link
+		question {
+			acRate
+			difficulty
+			freqBar
+			frontendQuestionId: questionFrontendId
+			isFavor
+			paidOnly: isPaidOnly
+			status
+			title
+			titleSlug
+			hasVideoSolution
+			hasSolution
+			topicTags {
+				name
+				id
+				slug
+			}
 		}
-	  }
 	}
-  }`;
+}`;
 
-export const dailyCodingQuestions = gql`
+export const dailyCodingQuestions = `
 query dailyCodingQuestionRecords($year: Int!, $month: Int!) {
 	dailyCodingChallengeV2(year: $year, month: $month) {
 	  challenges {
@@ -134,7 +131,7 @@ export const leetcodeProblemTags = [
 /* To filter by tag the filter in this query should be (using array as an example):
 	{"tags": ["array"]}
 */
-export const problemListByCategory = gql`
+export const problemListByCategory = `
 query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
 	problemsetQuestionList: questionList(
 	  categorySlug: $categorySlug

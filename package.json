@@ -4,14 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node ./server.js"
+    "start": "node ./bot.js"
   },
   "dependencies": {
     "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "graphql": "^16.8.1",
-    "graphql-request": "^6.1.0",
-    "http-errors": "~1.6.3",
+    "fetch-cookie": "^3.0.1",
     "node-cron": "^3.0.3",
     "zulip-js": "^2.0.9"
   }
