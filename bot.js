@@ -42,7 +42,7 @@ class LeetCodeBot {
 				const response = await fetch_with_cookies('https://leetcode.com/graphql', {
 					method: 'POST',
 					headers: {
-						referer: 'no-referrer',
+						referer: 'https://leetcode.com/problemset/',
 						'Content-Type': 'application/json'
 					},
 					body: `{"query":"${questionOfTheDay}","operationName":"questionOfToday"}`

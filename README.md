@@ -36,15 +36,12 @@ The bot can be configured by using the following environment variables:
 1. Clone this repo
 1. Install dependencies
 	1. `npm install`
-1. Start the server
+1. Run the bot
 	1. `npm start`
 
 ## Repo Overview
 
 This repository is composed of three main files.
-#### [server.js](./server.js)
-An express server that isn't really used right now but could be expanded to house an API. It's also the entry point for our bot.
-
 #### [bot.js](./bot.js)
 The business logic for the bot and where all the configuration gets applied.
 
