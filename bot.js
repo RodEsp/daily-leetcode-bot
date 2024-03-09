@@ -43,7 +43,7 @@ class LeetCodeBot {
 					method: 'POST',
 					headers: {
 						referer: 'https://leetcode.com/problemset/',
-						'Content-Type': 'application/json'
+						'Content-Type': 'application/json',
 					},
 					body: `{"query":"${questionOfTheDay}","operationName":"questionOfToday"}`
 				});
@@ -192,12 +192,12 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 									elements: [
 										{
 											type: "text",
-											text: `(${problems.leetcode_daily.difficulty}) `
+											text: `${problems.leetcode_daily ? `(${problems.leetcode_daily.difficulty})` : 'There was a problem with the Leetcode API\n'}`
 										},
 										{
 											type: "link",
-											url: `${baseLeetcodeURL}${problems.leetcode_daily.link}`,
-											text: problems.leetcode_daily.title,
+											url: `${baseLeetcodeURL}${problems.leetcode_daily ? problems.leetcode_daily.link : '/problemset'}`,
+											text: problems.leetcode_daily ? problems.leetcode_daily.title : 'Find the daily problem on the calenadar here',
 										}
 									]
 								}
