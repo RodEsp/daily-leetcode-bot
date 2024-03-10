@@ -1,9 +1,7 @@
 import { spawn } from 'node:child_process';
 
-import fetchCookie from 'fetch-cookie';
 import cron from 'node-cron';
 import zulipInit from 'zulip-js';
-
 
 import grind75_problems from './Grind75.json' assert { type: 'json' };
 import { questionOfTheDay } from './queries.js';
@@ -27,9 +25,6 @@ const messageReceiver = process.env.DLB_USER_ID ? [parseInt(process.env.DLB_USER
 const messageType = process.env.DLB_USER_ID ? 'direct' : 'stream';
 const messageTopic = process.env.DLB_TOPIC || 'Daily Leetcode Problem';
 const slackWebhookURL = process.env.DLB_SLACK_WEBHOOK;
-
-// Fetch with a cookie jar scoped to the client object.
-const fetch_with_cookies = fetchCookie(fetch);
 
 class LeetCodeBot {
 	static async run () {

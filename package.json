@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "debug": "~2.6.9",
-    "fetch-cookie": "^3.0.1",
     "node-cron": "^3.0.3",
     "zulip-js": "^2.0.9"
   }
