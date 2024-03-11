@@ -53,7 +53,7 @@ class LeetCodeBot {
 					console.error('Cloudflare blocked the request to the Leetcode API.');
 					console.error(response.status, response.statusText);
 					console.group('Getting data from python script...');
-					leetcode_data = (await run_python()).data.activeDailyCodingChallengeQuestion;
+					leetcode_data = (await run_python()).data?.activeDailyCodingChallengeQuestion;
 					console.groupEnd();
 				} else {
 					console.error('There was a problem fetching data from the Leetcode API.');
@@ -299,7 +299,12 @@ async function run_python() {
 		const python = spawn('python', ['./get_daily_question.py']);
 
 		python.stdout.on('data', function (data) {
-			jsonFromPython = JSON.parse(data.toString());
+			try {
+				jsonFromPython = JSON.parse(data.toString());
+			} catch (e) {
+				console.error(e);
+				resolve(data.toString());
+			}
 		});
 
 		python.on('close', (code) => {
