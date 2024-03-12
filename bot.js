@@ -57,7 +57,7 @@ class LeetCodeBot {
 					console.groupEnd();
 					console.groupEnd();
 
-					console.error('Trying alfa-leetcode-api...');
+					console.info('Trying alfa-leetcode-api...');
 					// If we can't get the response from the leetcode API directly, try alfa-leetcode-api.
 					// https://github.com/alfaArghya/alfa-leetcode-api
 					response = await fetch('https://alfa-leetcode-api.onrender.com/daily');
