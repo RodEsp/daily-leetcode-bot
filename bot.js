@@ -28,18 +28,18 @@ const slackWebhookURL = process.env.DLB_SLACK_WEBHOOK;
 
 class LeetCodeBot {
 	static async run () {
-		// Schedule the task to run every day at 10:00 AM
 		cron.schedule(cronSchedule, async () => {
 			const date = new Date(); // '2022-12-17T10:00:00.000-05:00' <- Use this date string for testing Advent of Code functionality
 
 			const humanReadableDateString = date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', timeZone: timezone });
-			console.log(`Getting leetcode problem for ${humanReadableDateString}`);
+			console.info(`Getting leetcode problem for ${humanReadableDateString}`);
 
 			try {
-				const response = await fetch('https://leetcode.com/graphql', {
+				let response = await fetch('https://leetcode.com/graphql', {
 					method: 'POST',
 					headers: {
 						authority: 'leetcode.com',
+						referer: 'https://leetdoce.com/problemset/',
 						'Content-Type': 'application/json',					
 					    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
 					},
@@ -49,18 +49,41 @@ class LeetCodeBot {
 				let leetcode_data;
 				if (response.ok) {
 					leetcode_data = (await response.json()).activeDailyCodingChallengeQuestion;
-				} else if (response.headers.get('cf-mitigated')) {
-					console.error('Cloudflare blocked the request to the Leetcode API.');
-					console.error(response.status, response.statusText);
-					console.group('Getting data from python script...');
-					leetcode_data = (await run_python()).data?.activeDailyCodingChallengeQuestion;
-					console.groupEnd();
 				} else {
-					console.error('There was a problem fetching data from the Leetcode API.');
+					console.group('There was a problem fetching data from the Leetcode API.');
 					console.error(response.status, response.statusText);
 					console.groupCollapsed('Response body:')
-					console.error(await response.text());
+					console.error(await response.text(), '\n');
 					console.groupEnd();
+					console.groupEnd();
+
+					console.error('Trying alfa-leetcode-api...');
+					// If we can't get the response from the leetcode API directly, try alfa-leetcode-api.
+					// https://github.com/alfaArghya/alfa-leetcode-api
+					response = await fetch('https://alfa-leetcode-api.onrender.com/daily');
+
+					if (response.ok) {
+						leetcode_data = (await response.json());
+						// Structure the data in the original Leetcode API format
+						leetcode_data = {
+							question: {
+								difficulty: leetcode_data.difficulty,
+								title: leetcode_data.questionTitle,
+							},
+							link: leetcode_data.questionLink
+						}
+					} else {
+						console.group('There was a problem fetching data from alfa-leetcode-api.');
+						console.error(response.status, response.statusText);
+						console.groupCollapsed('Response body:')
+						console.error(await response.text(), '\n');
+						console.groupEnd();
+						console.groupEnd();
+
+						console.group('Getting data from python script...');
+						leetcode_data = (await run_python()).data?.activeDailyCodingChallengeQuestion;
+						console.groupEnd();
+					}
 				}
 
 				// Choose problems from grind75 by selecting a random topic and then random questions for each difficulty from that topic
@@ -110,7 +133,7 @@ class LeetCodeBot {
 			timezone
 		});
 
-		console.log(`Daily Leetcode Bot is running and will post to Zulip with the following configuration:
+		console.info(`Daily Leetcode Bot is running and will post to Zulip with the following configuration:
 		Schedule(cron): ${cronSchedule}
 		Recipient: ${messageReceiver}
 		Topic: ${messageTopic}
@@ -144,7 +167,7 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 `;
 		}
 
-		console.log('  Posting message to Zulip:', `\n    ${message.replaceAll('\n', '\n    ')}`);
+		console.info('  Posting message to Zulip:', `\n    ${message.replaceAll('\n', '\n    ')}`);
 
 		let params = {
 			to: messageReceiver,
@@ -155,7 +178,7 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 
 		try {
 			const response = await zulipClient.messages.send(params);
-			console.log(`  Response: ${JSON.stringify(response, null, 4)}`);
+			console.info(`  Response: ${JSON.stringify(response, null, 4)}`);
 		} catch (error) {
 			console.error('Error posting message to Zulip:', error);
 		}
@@ -263,7 +286,7 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 			});
 		}
 
-		console.log('  Posting message to Slack:', `\n    ${JSON.stringify(payload)}`);
+		console.info('  Posting message to Slack:', `\n    ${JSON.stringify(payload)}`);
 
 		try {
 			const response = await fetch(slackWebhookURL, {
@@ -275,7 +298,7 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 			});
 
 			const result = await response.text();
-			console.log('  Response:', result);
+			console.info('  Response:', result);
 		} catch (error) {
 			console.error('Error posting message to Slack:', error);
 		}
@@ -308,9 +331,9 @@ async function run_python() {
 		});
 
 		python.on('close', (code) => {
-			console.log(`Python script finished with code ${code}`);
-			console.log('Data from python script:');
-			console.log(jsonFromPython);
+			console.info(`Python script finished with code ${code}`);
+			console.info('Data from python script:');
+			console.info(jsonFromPython);
 			resolve(jsonFromPython);
 		});
 	});
