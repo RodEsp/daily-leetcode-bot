@@ -70,7 +70,7 @@ class LeetCodeBot {
 								difficulty: leetcode_data.difficulty,
 								title: leetcode_data.questionTitle,
 							},
-							link: leetcode_data.questionLink
+							link: leetcode_data.questionLink.match(/\/problems\/.*/)[0]
 						}
 					} else {
 						console.group('There was a problem fetching data from alfa-leetcode-api.');
@@ -215,7 +215,7 @@ ${Object.entries(problems.grind75.problems).reduce((acc, [difficulty, problem]) 
 									elements: [
 										{
 											type: "text",
-											text: `${problems.leetcode_daily ? `(${problems.leetcode_daily.difficulty})` : 'There was a problem with the Leetcode API\n'}`
+											text: `${problems.leetcode_daily ? `(${problems.leetcode_daily.difficulty}) ` : 'There was a problem with the Leetcode API.'}`
 										},
 										{
 											type: "link",
