@@ -1,0 +1,44 @@
+{
+	"data": {
+		"activeDailyCodingChallengeQuestion": {
+			"date": "2025-11-03",
+			"userStatus": "NotStart",
+			"link": "/problems/minimum-time-to-make-rope-colorful/",
+			"question": {
+				"acRate": 65.14725344651929,
+				"difficulty": "Medium",
+				"freqBar": null,
+				"frontendQuestionId": "1578",
+				"isFavor": false,
+				"paidOnly": false,
+				"status": null,
+				"title": "Minimum Time to Make Rope Colorful",
+				"titleSlug": "minimum-time-to-make-rope-colorful",
+				"hasVideoSolution": false,
+				"hasSolution": true,
+				"topicTags": [
+					{
+						"name": "Array",
+						"id": "VG9waWNUYWdOb2RlOjU=",
+						"slug": "array"
+					},
+					{
+						"name": "String",
+						"id": "VG9waWNUYWdOb2RlOjEw",
+						"slug": "string"
+					},
+					{
+						"name": "Dynamic Programming",
+						"id": "VG9waWNUYWdOb2RlOjEz",
+						"slug": "dynamic-programming"
+					},
+					{
+						"name": "Greedy",
+						"id": "VG9waWNUYWdOb2RlOjE3",
+						"slug": "greedy"
+					}
+				]
+			}
+		}
+	}
+}
