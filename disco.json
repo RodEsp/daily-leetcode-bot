@@ -1,0 +1,8 @@
+{
+  "version": "1.0",
+  "services": {
+    "worker": {
+      "command": "node src/bot.ts"
+    }
+  }
+}
